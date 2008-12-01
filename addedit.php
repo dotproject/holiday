@@ -7,19 +7,18 @@
 ##
 
 $holiday_id = defVal( @$_GET["holiday_id"], 0);
-$holiday_white = defVal( @$_GET["white"], 0);
+$holiday_white = defVal( @$_GET["white"], -1);
 
 // Create date objects
 $log_start_date         = dPgetParam( $_POST, "log_start_date", 0 );
 $log_end_date           = dPgetParam( $_POST, "log_end_date", 0 );
 $start_date = intval( $log_start_date ) ? new CDate( $log_start_date ) : new CDate();
 $end_date   = intval( $log_end_date )   ? new CDate( $log_end_date ) : new CDate();
-
+$holiday_description = dPgetParam( $_POST, "holiday_description", '');
+$holiday_annual = dPgetParam( $_POST, "holiday_annual", 0);
+        
 $action = @$_REQUEST["action"];
 if($action) {
-        $holiday_description = $_POST["holiday_description"];
-        $holiday_annual = $_POST["holiday_annual"];
-
         if( $action == "add" ) {
                 $sql = "INSERT INTO holiday (holiday_description,holiday_start_date,holiday_end_date,holiday_white,holiday_annual) ";
                 $sql.= "VALUES ('";
@@ -35,7 +34,12 @@ if($action) {
                 $sql.= "')";
                 $okMsg = "Holiday registered";
         } else if ( $action == "update" ) {
-                $sql = "UPDATE holiday SET holiday_description = '$holiday_description' WHERE holiday_id = $holiday_id";
+                $sql = "UPDATE holiday SET ";
+                $sql.= "holiday_description = '" . $holiday_description . "', ";
+                $sql.= "holiday_start_date = '" . $start_date->format(FMT_DATETIME_MYSQL) . "', ";
+                $sql.= "holiday_end_date = '" . $end_date->format(FMT_DATETIME_MYSQL) . "', ";
+                $sql.= "holiday_annual = '" . $holiday_annual . "' ";
+                $sql.= "WHERE holiday_id = " . $holiday_id;
                 $okMsg = "Holiday updated";
         }
         else if ( $action == "del" ) {
@@ -52,6 +56,11 @@ if($action) {
 
 // pull the holiday from the database
 db_loadHash( "SELECT * FROM holiday WHERE holiday_id = $holiday_id", $holiday );
+
+if($holiday_white == -1)
+{
+	$holiday_white = $holiday['holiday_white'];
+}
 
 ?>
 
@@ -72,6 +81,7 @@ function delIt() {
 	document.AddEdit.action.value = "del";
 	document.AddEdit.submit();
 }
+
 </script>
 
 
@@ -98,7 +108,7 @@ function delIt() {
 <table border="0" cellpadding="4" cellspacing="0" width="98%">
 <tr>
 	<td width="50%" align="right">
-		<a href="javascript:delIt()"><img align="absmiddle" src="./images/icons/trash.gif" width="16" height="16" alt="" border="0"><?php echo $AppUI->_('Delete holiday');?></a>
+		<a href="javascript:delIt()"><img align="absmiddle" src="./images/icons/stock_delete-16.png" width="16" height="16" alt="" border="0"><?php echo $AppUI->_( $holiday_white ? 'Delete holiday' : 'Delete workday' );?></a>
 	</td>
 </tr>
 </table>
@@ -108,16 +118,16 @@ function delIt() {
 
         <?php echo $AppUI->_( 'Start date' );?>
         <input type="hidden" name="log_start_date" value="<?php echo $start_date->format( FMT_TIMESTAMP_DATE );?>" />
-        <input type="text" name="start_date" value="<?php echo $start_date->format( $AppUI->getPref('SHDATEFORMAT') );?>" class="text" disabled="disabled" />
-        <a href="#" onClick="popCalendar('start_date')">
-        <img src="./images/calendar.gif" width="24" height="12" alt="<?php echo $AppUI->_('Calendar');?>" border="0" />
+        <input type="text" name="start_date" onChange="copyDate()" value="<?php echo $start_date->format( $AppUI->getPref('SHDATEFORMAT') );?>" class="text" disabled="disabled" />
+        <a href="#" onClick="popCalendar('start_date')" >
+        <img src="./images/calendar.gif" width="24" height="12" title="<?php echo $AppUI->_('Calendar');?>" border="0" />
         </a>
 
         <?php echo $AppUI->_( 'End date' );?>
         <input type="hidden" name="log_end_date" value="<?php echo $end_date->format( FMT_TIMESTAMP_DATE );?>" />
         <input type="text" name="end_date" value="<?php echo $end_date->format( $AppUI->getPref('SHDATEFORMAT') );?>" class="text" disabled="disabled" size="20" />
         <a href="#" onClick="popCalendar('end_date')">
-        <img src="./images/calendar.gif" width="24" height="12" alt="<?php echo $AppUI->_('Calendar');?>" border="0" />
+        <img src="./images/calendar.gif" width="24" height="12" title="<?php echo $AppUI->_('Calendar');?>" border="0" />
         </a>
 
 	<td>
@@ -127,7 +137,7 @@ function delIt() {
 
 	<td>
         <?php echo $AppUI->_( 'Description' );?>
-        <input type="text" class="text" SIZE="100%" name="holiday_description" value=<?php echo $holiday["holiday_description"];?>>
+        <input type="text" class="text" SIZE="100%" name="holiday_description" value="<?php echo $holiday["holiday_description"];?>">
 	</td>
 </td></tr>
 

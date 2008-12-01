@@ -5,7 +5,6 @@
 ## Sensorlink AS (c) 2006
 ## Vegard Fiksdal (fiksdal@sensorlink.no)
 ##
-
 require_once 'PEAR/Holidays.php';
 
 function isHoliday( $date=0 ){
@@ -18,36 +17,48 @@ function isHoliday( $date=0 ){
 	{
 		$date=new CDate;
 	}
-
+	
 	if($holiday_manual)
 	{
 		// Check whether the date is blacklisted
 		$sql = "SELECT * FROM holiday ";
-		$sql.= "WHERE holiday_start_date <= '";
-		$sql.= $date->format( FMT_DATETIME_MYSQL );
-		$sql.= "' AND holiday_end_date >= '";
-		$sql.= $date->format( FMT_DATETIME_MYSQL );
-		$sql.= "' AND holiday_white=0";
+		$sql.= "WHERE ( date(holiday_start_date) <= '";
+		$sql.= $date->format( '%Y-%m-%d' );
+		$sql.= "' AND date(holiday_end_date) >= '";
+		$sql.= $date->format( '%Y-%m-%d' ) ;
+		$sql.= "' AND holiday_white=0 ) ";
+		$sql.= "OR ( ";
+		$sql.= " DATE_FORMAT(holiday_start_date, '%m-%d') <= '";
+		$sql.= $date->format( '%m-%d' );
+		$sql.= "' AND DATE_FORMAT(holiday_end_date, '%m-%d') >= '";
+		$sql.= $date->format( '%m-%d' ) ;		
+		$sql.= "' AND holiday_annual=1";
+		$sql.= " AND holiday_white=0 ) ";		
+				
 		if(db_loadResult($sql))
 		{
-			// Wimp out 
-//echo "<td>Blacklist hit</td>";
 			return 0;
 		}
 
-                // Check if we have a whitelist item for this date 
-                $sql = "SELECT * FROM holiday ";
-                $sql.= "WHERE holiday_start_date <= '";
-                $sql.= $date->format( FMT_DATETIME_MYSQL );
-                $sql.= "' AND holiday_end_date >= '";
-                $sql.= $date->format( FMT_DATETIME_MYSQL );
-                $sql.= "' AND holiday_white=1";
-                if(db_loadResult($sql))
-                {
-			// Kick the bucket, we have a hit
-//echo "<td>Whitelist hit</td>";
-                        return 1;
-                }
+        // Check if we have a whitelist item for this date 
+		$sql = "SELECT * FROM holiday ";
+		$sql.= "WHERE ( date(holiday_start_date) <= '";
+		$sql.= $date->format( '%Y-%m-%d' );
+		$sql.= "' AND date(holiday_end_date) >= '";
+		$sql.= $date->format( '%Y-%m-%d' ) ;
+		$sql.= "' AND holiday_white=1 ) ";
+		$sql.= "OR ( ";
+		$sql.= " DATE_FORMAT(holiday_start_date, '%m-%d') <= '";
+		$sql.= $date->format( '%m-%d' );
+		$sql.= "' AND DATE_FORMAT(holiday_end_date, '%m-%d') >= '";
+		$sql.= $date->format( '%m-%d' ) ;		
+		$sql.= "' AND holiday_annual=1";
+		$sql.= " AND holiday_white=1 ) ";
+		
+        if(db_loadResult($sql))
+        {
+			return 1;
+        }
 	}
 
 	if($holiday_auto)
@@ -57,8 +68,6 @@ function isHoliday( $date=0 ){
 		$driver_object = Date_Holidays::factory($drivers_alloc[$holiday_driver]['title'],$date->getYear(),'en_EN');
 		if (!Date_Holidays::isError($driver_object)) {
 			if($driver_object->getHolidayForDate($date)){
-				// Woha! Its a holiday!
-//echo "<td>autohit</td>";
 				return 1;
 			}
 		}

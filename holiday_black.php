@@ -33,7 +33,7 @@ while ($row = db_fetch_assoc( $prc )) {
 <tr>
 	<?php $tmp_start_date=new CDate($row['holiday_start_date']); ?>
 	<?php $tmp_end_date=new CDate($row["holiday_end_date"]); ?>
-	<td><a href='<?php echo "?m=holiday&a=addedit&holiday_id=" . $row["holiday_id"] ?>'><img src="./images/icons/pencil.gif" alt="<?php echo $AppUI->_( 'Edit holiday' ) ?>" border="0" width="12" height="12"></a></td>
+	<td><a href='<?php echo "?m=holiday&a=addedit&holiday_id=" . $row["holiday_id"] ?>'><img src="./images/icons/pencil.gif" title="<?php echo $AppUI->_( 'Edit holiday' ) ?>" border="0" width="12" height="12"></a></td>
 	<td><?php echo $row["holiday_description"]?></td>
 	<td width=100 nowrap="nowrap"><?php echo $tmp_start_date->format($AppUI->getPref('SHDATEFORMAT'))?></td>
 	<td width=100 nowrap="nowrap"><?php echo $tmp_end_date->format($AppUI->getPref('SHDATEFORMAT'))?></td>
@@ -46,7 +46,6 @@ while ($row = db_fetch_assoc( $prc )) {
 <table width="100%" border="0" cellpadding="3" cellspacing="1">
         <tr valign="top">
                 <td align="left">Blacklist items allows you to ignore holidays not viable in your region</td>
-                <td align="right"><input class="button" type="button" value="<?php echo $AppUI->_('Add workday');?>" onclick="window.location='?m=holiday&a=addedit&whit
-e=0&'"></td>
+                <td align="right"><input class="button" type="button" value="<?php echo $AppUI->_('Add workday');?>" onclick="window.location='?m=holiday&a=addedit&white=0&'"></td>
         </tr>
 </table>

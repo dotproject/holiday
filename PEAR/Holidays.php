@@ -16,7 +16,7 @@
 // | Authors:   Carsten Lucke <luckec@tool-garage.de>                     |
 // +----------------------------------------------------------------------+
 //
-//    $Id: Holidays.php,v 1.12 2006/08/13 21:48:21 luckec Exp $
+//    $Id: Holidays.php,v 1.1 2007/01/11 06:19:24 fiksdal Exp $
 
 /**
  * uses PEAR errors
@@ -27,7 +27,6 @@
  * uses PEAR::Date
  */
 //require_once 'Date.php';
-require_once( $AppUI->getLibraryClass( 'PEAR/Date' ) );
 
 /**
  * Class that wraps a holiday's data
@@ -75,7 +74,7 @@ define('DATE_HOLIDAYS_ERROR_MISSING_FILTER_DIR', 4);
  * @abstract
  * @category Date
  * @package  Date_Holidays
- * @version  $Id: Holidays.php,v 1.12 2006/08/13 21:48:21 luckec Exp $
+ * @version  $Id: Holidays.php,v 1.1 2007/01/11 06:19:24 fiksdal Exp $
  * @author   Carsten Lucke <luckec@tool-garage.de>
  * @author   Stephan Schmidt <schst@php.net>
  */
